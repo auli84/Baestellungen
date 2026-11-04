@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bestellungen – Puxi’s Brötchenparadies</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bestellungen">
+<meta name="theme-color" content="#fbf4e8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#fbf4e8; --card:#ffffff; --ink:#1b2440; --muted:#6a6f80; --line:#e6dccb;
+  --navy:#1f3f8f; --orange:#f05f14; --orangeSoft:#fde3d2; --ok:#2e7d4f; --danger:#c0392b;
+  --field:#fffdf9;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#14171f; --card:#1d212c; --ink:#eef0f6; --muted:#9aa0b2; --line:#2e3342;
+  --navy:#8fb0ff; --orange:#ff8a4c; --orangeSoft:#3a2418; --ok:#5fc48a; --danger:#ff7b6b; --field:#171a23;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#14171f; --card:#1d212c; --ink:#eef0f6; --muted:#9aa0b2; --line:#2e3342;
+  --navy:#8fb0ff; --orange:#ff8a4c; --orangeSoft:#3a2418; --ok:#5fc48a; --danger:#ff7b6b; --field:#171a23;
+  color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 40px}
+header h1{font-family:"Marker Felt","Kalam","Comic Sans MS",cursive;color:var(--orange);font-size:2.1rem;line-height:1.1;margin:8px 0 2px}
+header p{margin:0;color:var(--muted);font-size:.92rem}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;padding:12px 0 10px;margin-bottom:6px}
+nav button{flex:1;border:2px solid var(--navy);background:transparent;color:var(--navy);font:inherit;font-weight:800;font-size:.9rem;padding:9px 4px;border-radius:999px}
+nav button[aria-pressed="true"]{background:var(--navy);color:var(--bg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+label.f{display:block;font-weight:700;font-size:.9rem;margin:0 0 4px}
+input,textarea{width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px}
+input:focus,textarea:focus{outline:none;border-color:var(--navy)}
+.row{margin-bottom:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.prod:first-of-type{border-top:0}
+.prod .t{flex:1;min-width:0}
+.prod .t b{display:block}
+.prod .t span{color:var(--muted);font-size:.85rem}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:40px;height:40px;border-radius:50%;border:2px solid var(--orange);background:transparent;color:var(--orange);font-size:1.3rem;font-weight:800;line-height:1}
+.step input{width:52px;text-align:center;padding:8px 4px;font-weight:800}
+.total{display:flex;justify-content:space-between;align-items:baseline;background:var(--orangeSoft);border-radius:12px;padding:12px 14px;margin:12px 0}
+.total strong{font-size:1.5rem;color:var(--orange)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:800;font-size:1.05rem;background:var(--orange);color:#fff}
+.btn.sec{background:transparent;color:var(--navy);border:2px solid var(--navy);margin-top:8px}
+.msg{min-height:1.4em;text-align:center;font-weight:700;color:var(--ok);margin-top:8px}
+.note{font-size:.85rem;color:var(--muted);text-align:center;margin:6px 0 0}
+.order{position:relative}
+.order h3{margin:0 0 2px;font-size:1.05rem}
+.order .meta{color:var(--muted);font-size:.88rem}
+.order ul{margin:8px 0;padding-left:18px}
+.order .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.order .acts button{font:inherit;font-size:.88rem;font-weight:700;border-radius:999px;padding:7px 12px;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
+.order .acts .del{color:var(--danger);border-color:var(--danger)}
+.order.done{opacity:.6}
+.order .sum{position:absolute;top:16px;right:16px;font-weight:800;color:var(--orange)}
+.order a{color:var(--navy)}
+table{width:100%;border-collapse:collapse}
+td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
+td.n,th.n{text-align:right;font-weight:800}
+h2{font-size:1.15rem;margin:0 0 8px;color:var(--navy)}
+.empty{color:var(--muted);text-align:center;padding:20px 0}
+.hidden{display:none}
+.dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dates button{font:inherit;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:14px 8px;text-align:center}
+.dates button b{display:block;font-size:1.5rem;color:var(--orange);font-family:"Marker Felt","Kalam","Comic Sans MS",cursive;line-height:1.1}
+.dates button span{font-size:.85rem;color:var(--muted)}
+.dates button small{display:block;font-size:.78rem;color:var(--navy);font-weight:700;margin-top:2px}
+.chosen{display:flex;justify-content:space-between;align-items:center;background:var(--orangeSoft);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.chosen b{color:var(--orange);font-size:1.1rem}
+.chosen button{font:inherit;font-weight:700;border:0;background:transparent;color:var(--navy);text-decoration:underline;padding:4px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.chips button{flex:0 0 auto;font:inherit;font-size:.85rem;font-weight:700;border:1.5px solid var(--navy);background:transparent;color:var(--navy);border-radius:999px;padding:6px 12px}
+.chips button[aria-pressed="true"]{background:var(--navy);color:var(--bg)}
+.lead{margin:0 0 12px;font-weight:700}
+.search{margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Bestellungen</h1>
+  </header>
+  <nav>
+    <button data-tab="neu" aria-pressed="true">Neu</button>
+    <button data-tab="liste" aria-pressed="false">Bestellungen <span id="cnt"></span></button>
+    <button data-tab="summe" aria-pressed="false">Übersicht</button>
+  </nav>
+
+  <section id="tab-neu">
+    <div class="card" id="step1">
+      <p class="lead">Für welchen Tag ist die Bestellung?</p>
+      <div class="dates" id="dates"></div>
+    </div>
+    <div class="card hidden" id="step2">
+      <div class="chosen"><span>Lieferung am <b id="chosenTxt"></b></span><button type="button" id="changeDate">ändern</button></div>
+      <div class="row"><label class="f" for="name">Name</label><input id="name" autocomplete="off" autocapitalize="words"></div>
+      <div class="row"><label class="f" for="tel">Telefon</label><input id="tel" type="tel" inputmode="tel" autocomplete="off"></div>
+      <div id="prods"></div>
+      <div class="row"><label class="f" for="notiz">Notiz</label><textarea id="notiz" rows="2" placeholder="z. B. Sonderwunsch, Abholzeit"></textarea></div>
+      <div class="total"><span>Betrag</span><strong id="betrag">0,00 €</strong></div>
+      <button class="btn" id="save">Bestellung speichern</button>
+      <button class="btn sec hidden" id="cancel">Bearbeiten abbrechen</button>
+      <div class="msg" id="msg" aria-live="polite"></div>
+    </div>
+    <p class="note" id="storeNote"></p>
+  </section>
+
+  <section id="tab-liste" class="hidden">
+    <div class="chips" id="chipsL"></div>
+    <input class="search" id="q" placeholder="Suchen nach Name oder Telefon" autocomplete="off">
+    <div id="list"></div>
+  </section>
+
+  <section id="tab-summe" class="hidden">
+    <div class="chips" id="chipsS"></div>
+    <div class="card"><h2>Bestellt gesamt</h2><table id="tot"></table></div>
+    <div class="card"><h2>Brötchen für die Kartons</h2><table id="bro"></table></div>
+    <div class="card"><h2>Sichern &amp; zusammenführen</h2>
+      <button class="btn" id="csv">Liste als CSV exportieren</button>
+      <button class="btn sec" id="imp">CSV importieren</button>
+      <input type="file" id="impFile" accept=".csv,text/csv,text/plain" class="hidden">
+      <p class="note">Der Export lässt sich in Excel öffnen. Mit „Importieren“ holst du Bestellungen von einem anderen iPhone dazu – doppelte werden übersprungen.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const PRODUCTS=[
+  {k:"karton",name:"Special Brötchenkarton",info:"20 Brötchen",price:64},
+  {k:"kaese",name:"Aufschnittplatte Käse",info:"ca. 3–4 Personen",price:47},
+  {k:"deluxe",name:"Aufschnittplatte Puxi’s Deluxe",info:"ca. 3–4 Personen",price:47},
+  {k:"antipasti",name:"Antipastiplatte",info:"Platte",price:19},
+  {k:"brezelPremium",name:"Partybrezel Premiumfüllung",info:"4–5 Personen · Aufstriche, Schinken, Salami, Wurst, Käse, Gemüse, Ei",price:40,only:"2026-12-31"},
+  {k:"brezelVeggie",name:"Partybrezel Exklusivfüllung vegetarisch",info:"4–5 Personen · verschiedene Käse, Aufstriche, Gemüse",price:52,only:"2026-12-31"},
+  {k:"schnitzel",name:"Hühnerschnitzelsemmerl",info:"mit Sauce und Salatblatt",price:4.9},
+  {k:"gebaeck",name:"Gemischtes Jour-Gebäck",info:"Preis auf Anfrage",price:0}
+];
+const DATES=[
+  {d:"2026-12-24",t:"24.12.",w:"Donnerstag",h:"Abholung 11:30–12:00 beim FF-Haus"},
+  {d:"2026-12-25",t:"25.12.",w:"Freitag"},
+  {d:"2026-12-26",t:"26.12.",w:"Samstag"},
+  {d:"2026-12-27",t:"27.12.",w:"Sonntag"},
+  {d:"2026-12-31",t:"31.12.",w:"Donnerstag",h:"Abholung 11:30–12:00 beim FF-Haus"},
+  {d:"2027-01-01",t:"1.1.",w:"Freitag"}
+];
+const KARTON=[["Schinken / Käse",4],["Prosciutto / Salami",4],["Käse / Mozzarella",4],["Räucherlachs",4],["Ei / Curry-Aufstrich",2],["Thunfischaufstrich",2]];
+const $=s=>document.querySelector(s);
+const eur=n=>n.toLocaleString("de-AT",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+const dateLabel=d=>{const x=DATES.find(z=>z.d===d);return x?x.w.slice(0,2)+", "+x.t:"ohne Lieferdatum";};
+const fmtTs=ts=>ts?new Date(ts).toLocaleDateString("de-AT"):"";
+const betragOf=o=>PRODUCTS.reduce((a,p)=>a+(+o[p.k]||0)*p.price,0);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let orders=[]; let editId=null; let store=null; let liefer=null; let filterL="alle"; let filterS="alle";
+
+// Schritt 1: Lieferdatum
+$("#dates").innerHTML=DATES.map(x=>`<button type="button" data-d="${x.d}"><b>${x.t}</b><span>${x.w}</span>${x.h?`<small>${x.h}</small>`:""}</button>`).join("");
+$("#dates").addEventListener("click",e=>{const b=e.target.closest("button[data-d]");if(b)chooseDate(b.dataset.d);});
+function chooseDate(d){liefer=d;document.querySelectorAll(".prod[data-only]").forEach(el=>{const o=el.dataset.only;el.classList.toggle("hidden",!!o&&o!==d);});calc();$("#chosenTxt").textContent=dateLabel(d);$("#step1").classList.add("hidden");$("#step2").classList.remove("hidden");$("#msg").textContent="";window.scrollTo(0,0);}
+function backToDates(){$("#step2").classList.add("hidden");$("#step1").classList.remove("hidden");window.scrollTo(0,0);}
+$("#changeDate").onclick=backToDates;
+
+// Produkt-Zeilen
+$("#prods").innerHTML=PRODUCTS.map(p=>`
+ <div class="prod" data-only="${p.only||""}"><div class="t"><b>${p.name}</b><span>${p.price?eur(p.price)+" · ":""}${p.info}</span></div>
+ <div class="step"><button type="button" data-d="-1" data-k="${p.k}" aria-label="weniger">−</button>
+ <input id="q_${p.k}" type="number" inputmode="numeric" min="0" value="0" aria-label="Anzahl ${p.name}">
+ <button type="button" data-d="1" data-k="${p.k}" aria-label="mehr">+</button></div></div>`).join("");
+$("#prods").addEventListener("click",e=>{const b=e.target.closest("button[data-k]");if(!b)return;
+  const i=$("#q_"+b.dataset.k);i.value=Math.max(0,(+i.value||0)+ +b.dataset.d);calc();});
+$("#prods").addEventListener("input",calc);
+function readForm(){const o={name:$("#name").value.trim(),tel:$("#tel").value.trim(),liefer,notiz:$("#notiz").value.trim()};
+  PRODUCTS.forEach(p=>o[p.k]=(p.only&&p.only!==liefer)?0:Math.max(0,parseInt($("#q_"+p.k).value)||0));return o;}
+function calc(){$("#betrag").textContent=eur(betragOf(readForm()));}
+function resetForm(){$("#name").value="";$("#tel").value="";$("#notiz").value="";
+  PRODUCTS.forEach(p=>$("#q_"+p.k).value=0);editId=null;liefer=null;$("#save").textContent="Bestellung speichern";$("#cancel").classList.add("hidden");calc();backToDates();}
+resetForm();
+
+// Tabs
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function showTab(t){document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.tab===t));
+  ["neu","liste","summe"].forEach(x=>$("#tab-"+x).classList.toggle("hidden",x!==t));window.scrollTo(0,0);}
+
+// Speichern
+let busy=false;
+$("#save").onclick=async()=>{
+  if(busy)return; const o=readForm(); const msg=$("#msg");
+  const err=t=>{msg.style.color="var(--danger)";msg.textContent=t;};
+  if(!o.liefer)return err("Bitte zuerst ein Lieferdatum wählen.");
+  if(!o.name)return err("Bitte einen Namen eingeben.");
+  if(!PRODUCTS.some(p=>o[p.k]>0))return err("Bitte mindestens ein Produkt wählen.");
+  if(!store)return err("Speicher wird noch geladen …");
+  busy=true; const wasEdit=!!editId;
+  try{
+    if(wasEdit)await store.update(editId,o);
+    else{o.created=Date.now();o.erledigt=false;await store.add(o);}
+    resetForm(); msg.style.color="var(--ok)";
+    msg.textContent=wasEdit?"Änderung gespeichert ✓":"Bestellung von "+o.name+" für "+dateLabel(o.liefer)+" gespeichert ✓";
+    if(wasEdit)showTab("liste");
+  }catch(e){err("Speichern fehlgeschlagen. Bitte nochmal probieren.");}
+  busy=false; setTimeout(()=>{if(msg.textContent.includes("✓"))msg.textContent=""},4000);
+};
+$("#cancel").onclick=()=>{resetForm();showTab("liste");};
+
+// Datumsfilter
+function chips(el,cur){
+  const used=new Set(orders.map(o=>o.liefer||""));
+  const opts=[["alle","Alle"],...DATES.map(x=>[x.d,x.t])];
+  if(used.has(""))opts.push(["","ohne Datum"]);
+  el.innerHTML=opts.map(([v,t])=>{const n=v==="alle"?orders.length:orders.filter(o=>(o.liefer||"")===v).length;
+    return `<button type="button" data-v="${v}" aria-pressed="${v===cur}">${t} (${n})</button>`}).join("");
+}
+$("#chipsL").addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(b){filterL=b.dataset.v;renderList();}});
+$("#chipsS").addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(b){filterS=b.dataset.v;renderSum();}});
+const byFilter=f=>f==="alle"?orders:orders.filter(o=>(o.liefer||"")===f);
+
+// Liste
+$("#q").addEventListener("input",renderList);
+function renderList(){
+  $("#cnt").textContent=orders.length?"("+orders.length+")":"";
+  chips($("#chipsL"),filterL);
+  const q=$("#q").value.trim().toLowerCase();
+  const rows=orders.map((o,i)=>({o,nr:i+1})).filter(({o})=>(filterL==="alle"||(o.liefer||"")===filterL)&&(!q||(o.name||"").toLowerCase().includes(q)||(o.tel||"").replace(/\s/g,"").includes(q.replace(/\s/g,""))));
+  if(!rows.length){$("#list").innerHTML=`<p class="empty">${orders.length?"Keine Bestellungen in dieser Auswahl.":"Noch keine Bestellungen."}</p>`;return;}
+  $("#list").innerHTML=rows.map(({o,nr})=>`
+   <div class="card order ${o.erledigt?"done":""}">
+    <span class="sum">${eur(betragOf(o))}</span>
+    <h3>${nr}. ${esc(o.name)}</h3>
+    <div class="meta"><b>${dateLabel(o.liefer)}</b>${o.tel?` · <a href="tel:${esc(o.tel.replace(/[^\d+]/g,""))}">${esc(o.tel)}</a>`:""}</div>
+    <ul>${PRODUCTS.filter(p=>o[p.k]>0).map(p=>`<li>${o[p.k]} × ${p.name}</li>`).join("")}</ul>
+    ${o.notiz?`<div class="meta">📝 ${esc(o.notiz)}</div>`:""}
+    <div class="meta">bestellt am ${fmtTs(o.created)}</div>
+    <div class="acts">
+     <button data-a="done" data-id="${o.id}">${o.erledigt?"↩︎ Offen":"✓ Abgeholt"}</button>
+     <button data-a="edit" data-id="${o.id}">Bearbeiten</button>
+     <button data-a="del" class="del" data-id="${o.id}">Löschen</button>
+    </div></div>`).join("");
+}
+$("#list").addEventListener("click",async e=>{
+  const b=e.target.closest("button[data-a]");if(!b||!store)return;const o=orders.find(x=>x.id===b.dataset.id);if(!o)return;
+  if(b.dataset.a==="edit"){resetForm();editId=o.id;$("#name").value=o.name||"";$("#tel").value=o.tel||"";$("#notiz").value=o.notiz||"";
+    PRODUCTS.forEach(p=>$("#q_"+p.k).value=o[p.k]||0);$("#save").textContent="Änderung speichern";$("#cancel").classList.remove("hidden");
+    showTab("neu");if(o.liefer)chooseDate(o.liefer);calc();return;}
+  try{
+    if(b.dataset.a==="done")await store.update(o.id,{erledigt:!o.erledigt});
+    if(b.dataset.a==="del"&&confirm("Bestellung von "+o.name+" wirklich löschen?"))await store.remove(o.id);
+  }catch(err){alert("Das hat nicht geklappt. Bitte nochmal probieren.");}
+});
+
+// Übersicht
+function renderSum(){
+  chips($("#chipsS"),filterS);
+  const list=byFilter(filterS);
+  const t={};PRODUCTS.forEach(p=>t[p.k]=list.reduce((a,o)=>a+(+o[p.k]||0),0));
+  const total=list.reduce((a,o)=>a+betragOf(o),0);
+  $("#tot").innerHTML=PRODUCTS.map(p=>`<tr><td>${p.name}</td><td class="n">${t[p.k]}</td></tr>`).join("")+
+    `<tr><td><b>Betrag gesamt</b> (ohne Jour-Gebäck)</td><td class="n">${eur(total)}</td></tr>`;
+  $("#bro").innerHTML=`<tr><th>Sorte</th><th class="n">Stück</th></tr>`+KARTON.map(([n,q])=>`<tr><td>${n}</td><td class="n">${q*t.karton}</td></tr>`).join("")+
+    `<tr><td><b>Brötchen gesamt</b> (${t.karton} Kartons)</td><td class="n">${20*t.karton}</td></tr>`;
+}
+function renderAll(){orders.sort((a,b)=>(a.liefer||"9").localeCompare(b.liefer||"9")||(a.created||0)-(b.created||0));renderList();renderSum();}
+
+// CSV-Export
+function csv(){
+  const head=["Nr.","Lieferdatum","Name","Telefon",...PRODUCTS.map(p=>p.name),"Betrag €","Abgeholt","Notiz","Bestellt am","ID","Erstellt"];
+  const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const lines=[head.map(q).join(";")].concat(orders.map((o,i)=>[i+1,dateLabel(o.liefer),o.name,o.tel,...PRODUCTS.map(p=>o[p.k]||0),betragOf(o).toFixed(2).replace(".",","),o.erledigt?"ja":"nein",o.notiz,fmtTs(o.created),o.id,o.created||""].map(q).join(";")));
+  return "\ufeff"+lines.join("\r\n");
+}
+
+// Speicher: nur auf diesem Gerät
+const KEY="puxi-orders";
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}};
+const persist=a=>{localStorage.setItem(KEY,JSON.stringify(a))};
+const emit=()=>{orders=load();renderAll();};
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+store={
+  add:async o=>{const a=load();a.push({...o,id:newId()});persist(a);emit();},
+  update:async(id,d)=>{persist(load().map(o=>o.id===id?{...o,...d}:o));emit();},
+  remove:async id=>{persist(load().filter(o=>o.id!==id));emit();}
+};
+$("#storeNote").textContent="Bestellungen werden nur auf diesem iPhone gespeichert. Ab und zu als CSV sichern!";
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
+emit();
+
+// Export
+$("#csv").onclick=async()=>{
+  const name="Bestellungen_"+new Date().toISOString().slice(0,10)+".csv";
+  const blob=new Blob([csv()],{type:"text/csv"});
+  try{
+    const file=new File([blob],name,{type:"text/csv"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Bestellungen"});return;}
+  }catch(e){if(e.name==="AbortError")return;}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+};
+
+// Import (CSV aus dieser App)
+function parseCSV(t){
+  t=t.replace(/^\ufeff/,"");const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++;}else q=false;}else f+=c;}
+    else if(c=='"')q=true; else if(c==";"){row.push(f);f="";}
+    else if(c=="\n"){row.push(f.replace(/\r$/,""));rows.push(row);row=[];f="";}
+    else f+=c;}
+  if(f||row.length){row.push(f.replace(/\r$/,""));rows.push(row);}
+  return rows;
+}
+$("#imp").onclick=()=>$("#impFile").click();
+$("#impFile").onchange=async e=>{
+  const file=e.target.files[0];e.target.value="";if(!file)return;
+  const rows=parseCSV(await file.text());const h=rows.shift()||[];
+  const col=n=>h.indexOf(n);
+  if(col("ID")<0){alert("Diese Datei stammt nicht aus dieser App.");return;}
+  const byLabel=Object.fromEntries(DATES.map(x=>[dateLabel(x.d),x.d]));
+  const a=load();const have=new Set(a.map(o=>o.id));let added=0;
+  rows.forEach(r=>{if(r.length<h.length)return;const id=r[col("ID")];if(!id||have.has(id))return;
+    const o={id,name:r[col("Name")],tel:r[col("Telefon")],liefer:byLabel[r[col("Lieferdatum")]]||null,notiz:r[col("Notiz")]||"",
+      erledigt:r[col("Abgeholt")]==="ja",created:+r[col("Erstellt")]||Date.now()};
+    PRODUCTS.forEach(p=>{const i=col(p.name);o[p.k]=i<0?0:(parseInt(r[i])||0);});
+    a.push(o);have.add(id);added++;});
+  persist(a);emit();alert(added+" Bestellung(en) importiert.");
+};
+
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+renderAll();
+</script>
+</body>
+</html>
